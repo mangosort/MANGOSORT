@@ -1,0 +1,9 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+torch==2.0.1
+torchvision==0.15.2
+yolov5==7.0.13
+opencv-python==4.8.1.78
+Pillow==10.0.0
+numpy==1.24.3
+python-dotenv==1.0.0

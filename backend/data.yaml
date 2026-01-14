@@ -1,0 +1,17 @@
+train: datasets/mango_dataset/train/images
+val: datasets/mango_dataset/valid/images
+test: datasets/mango_dataset/test/images
+
+nc: 4
+names:
+  - unripe
+  - ripe
+  - overripe
+  - rotten
+
+roboflow:
+  workspace: mangosort
+  project: carabao-mango-r6z5o
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/mangosort/carabao-mango-r6z5o/dataset/1

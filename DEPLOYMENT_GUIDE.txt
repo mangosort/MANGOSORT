@@ -1,0 +1,58 @@
+================================
+DEPLOYMENT WORKFLOW GUIDE
+================================
+
+HOW TO UPDATE YOUR WEBSITE:
+
+1. Edit your code in VS Code
+   - Modify index.html, script.js, style.css
+
+2. Open PowerShell Terminal and run:
+   
+   git add .
+   git commit -m "Your message describing the changes"
+   git push
+
+3. GitHub Actions will automatically:
+   - Copy files to public folder
+   - Deploy to Firebase
+   - Update your website
+
+4. Website updates in 1-2 minutes automatically!
+
+5. Refresh your browser (Ctrl+Shift+R) to see changes
+
+================================
+QUICK REFERENCE COMMANDS:
+================================
+
+Check git status:
+   git status
+
+Add all changes:
+   git add .
+
+Commit changes:
+   git commit -m "Your message"
+
+Push to GitHub:
+   git push
+
+View deployment status:
+   Go to GitHub → Actions tab
+   (Green checkmark = successful)
+
+View live website:
+   https://mangosort-d7363.web.app
+
+================================
+IMPORTANT NOTES:
+================================
+
+✓ Do NOT manually run "firebase deploy"
+✓ GitHub Actions handles deployment automatically
+✓ Always commit AND push for changes to go live
+✓ Refresh browser after changes appear (takes 1-2 min)
+✓ Check Actions tab if website doesn't update
+
+================================

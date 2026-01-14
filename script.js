@@ -269,9 +269,30 @@
 
   // Camera / capture -> POST to backend
   let streamHandle = null;
+  let yoloStreamActive = false;
+  
   async function openCamera(){
     try{
-      // Request higher resolution to avoid zoomed/cropped view
+      // Try to connect to YOLO backend stream first
+      const yoloStream = document.getElementById('yolo-stream');
+      const cameraVideoMain = document.getElementById('camera-video-main');
+      
+      try {
+        const healthCheck = await fetch('http://localhost:5000/api/health');
+        if(healthCheck.ok) {
+          // Backend is running, show YOLO stream using img tag with src
+          yoloStream.src = 'http://localhost:5000/api/video?' + Date.now();
+          yoloStream.style.display = 'block';
+          cameraVideoMain.style.display = 'none';
+          yoloStreamActive = true;
+          console.log('Using YOLO backend stream');
+          return;
+        }
+      } catch(e) {
+        console.log('YOLO backend unavailable, using camera');
+      }
+      
+      // Fallback to regular camera if backend unavailable
       streamHandle = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode: 'environment',
@@ -280,10 +301,10 @@
         }, 
         audio: false 
       });
-      // Stream directly to the main video frame on the processing page
-      cameraVideoMain && (cameraVideoMain.srcObject = streamHandle);
-      // Also set it on the modal camera in case someone uses that
-      cameraVideo.srcObject = streamHandle;
+      cameraVideoMain.srcObject = streamHandle;
+      cameraVideoMain.style.display = 'block';
+      yoloStream.style.display = 'none';
+      yoloStreamActive = false;
     }catch(e){ alert('Unable to access camera: '+e); }
   }
 
@@ -307,15 +328,26 @@
       try{
         const form = new FormData();
         form.append('image', blob, 'capture.jpg');
-        const resp = await fetch('http://127.0.0.1:5000/classify', { method:'POST', body: form });
+        const resp = await fetch('http://localhost:5000/api/predict', { method:'POST', body: form });
         if(!resp.ok) throw new Error(await resp.text());
         const data = await resp.json();
-        // simple handling: update counts based on response
-        if(data && data.category){
-          if(data.category === 'unripe') unripe += 1;
-          else if(data.category === 'ripe') ripe += 1;
-          else overripe += 1;
+        
+        // Handle predictions from YOLO model
+        if(data && data.predictions && data.predictions.length > 0){
+          // Get the top prediction (highest confidence)
+          const topPred = data.predictions.reduce((max, curr) => 
+            curr.confidence > max.confidence ? curr : max
+          );
+          
+          // Map class names to our categories
+          const className = topPred.class.toLowerCase();
+          if(className === 'unripe') unripe += 1;
+          else if(className === 'ripe') ripe += 1;
+          else if(className === 'overripe') overripe += 1;
+          
+          total += 1;
           updateCountsUI();
+          procStatus.textContent = `Last: ${topPred.class} (${(topPred.confidence * 100).toFixed(1)}%)`;
         }
       }catch(e){ alert('Classification failed: '+e); }
     }, 'image/jpeg', 0.9);
