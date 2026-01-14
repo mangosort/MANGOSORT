@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f1419">
+  <title>MANGOSORT Pro — Web</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" class="kiosk-friendly">
+    <!-- Loading / Startup Screen -->
+    <section id="loading" class="screen center">
+      <div class="logo">🥭</div>
+      <h1 class="brand">MANGOSORT <span class="pro">PRO</span></h1>
+      <p class="subtitle">AI-Powered Mango Classification System</p>
+
+      <div class="loading-area">
+        <div id="loading-text">Initializing AI modules...</div>
+        <div class="progress">
+          <div id="progress-bar"></div>
+        </div>
+        <div class="version">v2.0.1 • Neural Networks Ready</div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard -->
+    <section id="main" class="screen hidden">
+      <header class="header">
+        <div class="left">
+          <div class="logo-mini">🥭</div>
+          <div class="titles">
+            <div class="title">MANGOSORT Pro</div>
+            <div class="subtitle-mini">AI Classification Dashboard</div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="status"><span class="dot on"></span> System Ready</div>
+        </div>
+      </header>
+
+      <main class="content">
+        <div class="stats-row" id="recent-stats">
+          <!-- Filled by JS -->
+        </div>
+
+        <div class="actions center">
+          <button id="start-btn" class="btn primary big">🚀 START SESSION (MANUAL)</button>
+          <div class="hint">Use Pi GPIO buttons to increment counts (manual)</div>
+          <div class="secondary">
+            <button id="settings-btn" class="btn">⚙️ Settings</button>
+            <button id="camera-btn" class="btn">📷 Camera</button>
+            <button id="analytics-btn" class="btn">📊 Analytics</button>
+            <button id="export-all-btn" class="btn warning">📋 Export</button>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <!-- Processing Page -->
+    <section id="processing" class="screen hidden">
+      <header class="proc-header">
+        <div class="left">
+          <div class="logo-mini">🥭</div>
+          <div>
+            <div class="title">Live Processing</div>
+            <div id="proc-status" class="status"><span class="dot active"></span> ACTIVE</div>
+          </div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><div class="icon">⏱️</div><div id="time-label">00:00:00</div></div>
+          <div class="metric"><div class="icon">🚀</div><div id="rate-label">0/min</div></div>
+          <div class="metric"><div class="icon">🎯</div><div id="accuracy-label">0%</div></div>
+        </div>
+      </header>
+
+      <main class="proc-content">
+        <div class="proc-grid">
+          <div class="left-area">
+            <div class="video-frame">
+              <video id="camera-video-main" autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;border-radius:10px"></video>
+              <div class="overlay-top">
+                <div class="session-info">Session • <span id="session-total">0</span> items</div>
+                <div class="session-time" id="time-label-top">00:00:00</div>
+              </div>
+              <div class="left-controls">
+                <button id="pause-btn" class="btn">⏸️ Pause</button>
+                <button id="stop-btn" class="btn danger">⏹️ Stop</button>
+                <button id="export-btn" class="btn">📊 Export</button>
+                <button id="settings-btn-2" class="btn">⚙️ Settings</button>
+                <button id="camera-btn-2" class="btn">📷 Camera</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="right-panel">
+            <div class="panel-header">Classification Results</div>
+            <div class="result-cards">
+              <div class="result-card unripe">
+                <div class="rc-emoji">🟢</div>
+                <div class="rc-label">UNRIPE</div>
+                <div class="rc-value"><span id="unripe-count">0</span></div>
+                <div class="rc-pct" id="unripe-pct">0%</div>
+              </div>
+              <div class="result-card ripe">
+                <div class="rc-emoji">🟡</div>
+                <div class="rc-label">RIPE</div>
+                <div class="rc-value"><span id="ripe-count">0</span></div>
+                <div class="rc-pct" id="ripe-pct">0%</div>
+              </div>
+              <div class="result-card overripe">
+                <div class="rc-emoji">🟤</div>
+                <div class="rc-label">OVERRIPE</div>
+                <div class="rc-value"><span id="overripe-count">0</span></div>
+                <div class="rc-pct" id="overripe-pct">0%</div>
+              </div>
+            </div>
+
+            <div class="metrics-box">
+              <div class="metric-row"><div class="m-title">Rate</div><div id="rate-label" class="m-value">0/min</div></div>
+              <div class="metric-row"><div class="m-title">Accuracy</div><div id="accuracy-label" class="m-value">0%</div></div>
+            </div>
+
+            <!-- Right panel controls removed to avoid duplication; controls are inside the live feed frame -->
+          </aside>
+        </div>
+      </main>
+    </section>
+
+    <!-- Camera modal -->
+    <div id="camera-modal" class="modal hidden">
+      <h3>Camera Capture</h3>
+      <video id="camera-video" autoplay playsinline style="width:100%;border-radius:8px;background:#000"></video>
+      <canvas id="camera-canvas" class="hidden"></canvas>
+      <div class="form-row actions-right">
+        <button id="capture-btn" class="btn">Capture</button>
+        <button id="close-camera" class="btn">Close</button>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="hidden"></div>
+
+    <div id="settings-modal" class="modal hidden">
+      <h3>Processing Settings</h3>
+      <div class="form-row">
+        <label>Processing Speed</label>
+        <div>
+          <label><input type="radio" name="speed" value="2000"> Slow (2s)</label>
+          <label><input type="radio" name="speed" value="1000" checked> Normal (1s)</label>
+          <label><input type="radio" name="speed" value="500"> Fast (0.5s)</label>
+          <label><input type="radio" name="speed" value="300"> Turbo (0.3s)</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <label><input type="checkbox" id="batch-checkbox"> Enable batch processing (not used; counts come from hardware)</label>
+      </div>
+      <div class="form-row actions-right">
+        <button id="apply-settings" class="btn success">Apply Settings</button>
+      </div>
+    </div>
+
+    <div id="analytics-modal" class="modal hidden">
+      <h3>Analytics Dashboard</h3>
+      <div class="table-wrap">
+        <table id="analytics-table">
+          <thead><tr><th>Date</th><th>Duration</th><th>Total</th><th>Unripe</th><th>Ripe</th><th>Overripe</th><th>Efficiency</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="form-row actions-right">
+        <button id="close-analytics" class="btn">Close</button>
+      </div>
+    </div>
+
+    <div id="stop-modal" class="modal hidden">
+      <h3>Stop Processing</h3>
+      <p>Are you sure you want to stop the current session?</p>
+      <label><input type="checkbox" id="save-session" checked> Save this session to history</label>
+      <div class="form-row actions-right">
+        <button id="confirm-stop" class="btn danger">Stop Session</button>
+        <button id="cancel-stop" class="btn">Continue</button>
+      </div>
+    </div>
+
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
